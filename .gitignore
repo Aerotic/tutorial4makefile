@@ -1,1 +1,3 @@
-asm-c.out
+*.out
+*.so
+*.s
