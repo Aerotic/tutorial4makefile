@@ -1,9 +1,25 @@
-SRC=$(shell ls *.c)  #  获取当前目录下以.c为后缀的文件名
-SRC+=$(shell ls lib/*.c)  #  获取当前目录下的子目录lib中以.c为后缀的文件名
-BS=$(basename $(SRC)) # 去掉拓展名
-OBJ=$(addsuffix .o,$(BS)) # 加上.o拓展名
+default:help
+.PHONY: help
+help:
+	@echo 基于 MakeFile 的C代码编译管理示例教程
+	@echo 
 
-ROOT_SRC=$(shell ls *.c) # 获取根目录下的c源文件
+
+# 编译lib文件夹下的所有源文件的obj
+LIB_SRC=$(shell ls lib/*.c) #  获取lib目录下以.c为后缀的文件名
+LIB_SRC_BASENAME=$(basename $(LIB_SRC)) # 获取没有后缀名的文件名
+LIB_ODJ=$(addsuffix .o,$(LIB_SRC_BASENAME)) # 加上.o拓展名
+lib/%.o:lib/%.c # 
+	gcc -c $< -o $@
+.PHONY: lib_obj
+lib_obj:${LIB_ODJ}
+
+.PHONY: main main_obj
+INC_SRC=lib
+main_obj:main.c
+	${CC} -c $< -I${INC_SRC}
+main:main_obj lib_obj
+	${CC} main.o ${LIB_ODJ} -o $@.out
 
 # 生成一个汇编 这里生成汇编一个是为了展示gcc生成汇编的步骤另一个是为了给汇编和C代码联合编译准备个汇编文件
 # ${ASM}:${ASM_SRC} $@是${ASM}，也即TARGET；$<是${ASM_SRC}，也即前置依赖的第一个
@@ -54,4 +70,4 @@ dll-c: ${ROOT_SRC} ${DLL}
 
 
 clean:
-	rm ${ASM} ${DLL}
+	rm ${ASM} ${DLL} ${LIB_ODJ} *.o
